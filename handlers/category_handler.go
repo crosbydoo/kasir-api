@@ -98,6 +98,7 @@ func GetCategoryByID(w http.ResponseWriter, r *http.Request) {
 	for _, ctg := range models.Categories {
 		if ctg.ID == id {
 			pkg.ResponseSuccess(w, http.StatusOK, "Success", ctg)
+			return
 		}
 	}
 
