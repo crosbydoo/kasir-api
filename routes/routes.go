@@ -33,6 +33,30 @@ func SetupRouter() {
 		}
 	})
 
+	http.HandleFunc("/api/category", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "GET":
+			handlers.GetAllCategories(w, r)
+		case "POST":
+			handlers.CreateCategory(w, r)
+		default:
+			pkg.ResponseError(w, http.StatusMethodNotAllowed, "Method not allowed", nil)
+		}
+	})
+
+	http.HandleFunc("/api/category/", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "GET":
+			handlers.GetCategoryByID(w, r)
+		case "PUT":
+			handlers.UpdateCategory(w, r)
+		case "DELETE":
+			handlers.DeleteCategory(w, r)
+		default:
+			pkg.ResponseError(w, http.StatusMethodNotAllowed, "Method not allowed", nil)
+		}
+	})
+
 	// Health check
 	http.HandleFunc("/health", handlers.HealthCheck)
 

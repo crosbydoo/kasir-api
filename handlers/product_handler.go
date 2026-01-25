@@ -9,10 +9,25 @@ import (
 	"strings"
 )
 
+// @Summary Get All Products
+// @Description Get All Products
+// @Tags Product
+// @Accept json
+// @Produce json
+// @Success 200 {object} pkg.ResponsePayload
+// @Router /api/product [get]
 func GetAllProducts(w http.ResponseWriter, r *http.Request) {
 	pkg.ResponseSuccess(w, http.StatusOK, "success", models.Products)
 }
 
+// @Summary Create Product
+// @Description Create Product
+// @Tags Product
+// @Accept json
+// @Produce json
+// @Param product body dto.ProductRequest true "Product Request"
+// @Success 200 {object} pkg.ResponsePayload
+// @Router /api/product [post]
 func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var newProduct models.Product
 	err := json.NewDecoder(r.Body).Decode(&newProduct)
@@ -29,6 +44,14 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	pkg.ResponseSuccess(w, http.StatusCreated, "success", models.Products)
 }
 
+// @Summary Get Product By ID
+// @Description Get Product By ID
+// @Tags Product
+// @Accept json
+// @Produce json
+// @Param id path int true "Product ID"
+// @Success 200 {object} pkg.ResponsePayload
+// @Router /api/product/{id} [get]
 func GetProductByID(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/api/product/")
 	id, err := strconv.Atoi(idStr)
@@ -47,6 +70,15 @@ func GetProductByID(w http.ResponseWriter, r *http.Request) {
 	pkg.ResponseSuccess(w, http.StatusNotFound, "Product not found", nil)
 }
 
+// @Summary Update Product
+// @Description Update Product
+// @Tags Product
+// @Accept json
+// @Produce json
+// @Param id path int true "Product ID"
+// @Param product body dto.ProductRequest true "Product Request"
+// @Success 200 {object} pkg.ResponsePayload
+// @Router /api/product/{id} [put]
 func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	//get id from request
 	idStr := strings.TrimPrefix(r.URL.Path, "/api/product/")
@@ -78,6 +110,14 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	pkg.ResponseError(w, http.StatusNotFound, "Product not found", nil)
 }
 
+// @Summary Delete Product
+// @Description Delete Product
+// @Tags Product
+// @Accept json
+// @Produce json
+// @Param id path int true "Product ID"
+// @Success 200 {object} pkg.ResponsePayload
+// @Router /api/product/{id} [delete]
 func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/api/product/")
 	// ganti jadi int

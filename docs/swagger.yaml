@@ -1,5 +1,21 @@
 basePath: /
 definitions:
+  dto.CategoryRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  dto.ProductRequest:
+    properties:
+      harga:
+        type: integer
+      name:
+        type: string
+      stock:
+        type: integer
+    type: object
   pkg.ResponsePayload:
     properties:
       code:
@@ -17,6 +33,212 @@ info:
   title: Kasir API
   version: "1.0"
 paths:
+  /api/category:
+    get:
+      consumes:
+      - application/json
+      description: Get All Categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.ResponsePayload'
+      summary: Get All Categories
+      tags:
+      - Category
+    post:
+      consumes:
+      - application/json
+      description: Create Category
+      parameters:
+      - description: Create Category Request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.ResponsePayload'
+      summary: Create Category
+      tags:
+      - Category
+  /api/category/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.ResponsePayload'
+      summary: Delete Category
+      tags:
+      - Category
+    get:
+      consumes:
+      - application/json
+      description: Get Category By ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.ResponsePayload'
+      summary: Get Category By ID
+      tags:
+      - Category
+    put:
+      consumes:
+      - application/json
+      description: Update Category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Category Request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.ResponsePayload'
+      summary: Update Category
+      tags:
+      - Category
+  /api/product:
+    get:
+      consumes:
+      - application/json
+      description: Get All Products
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.ResponsePayload'
+      summary: Get All Products
+      tags:
+      - Product
+    post:
+      consumes:
+      - application/json
+      description: Create Product
+      parameters:
+      - description: Product Request
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.ResponsePayload'
+      summary: Create Product
+      tags:
+      - Product
+  /api/product/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.ResponsePayload'
+      summary: Delete Product
+      tags:
+      - Product
+    get:
+      consumes:
+      - application/json
+      description: Get Product By ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.ResponsePayload'
+      summary: Get Product By ID
+      tags:
+      - Product
+    put:
+      consumes:
+      - application/json
+      description: Update Product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Product Request
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.ResponsePayload'
+      summary: Update Product
+      tags:
+      - Product
   /health:
     get:
       consumes:
