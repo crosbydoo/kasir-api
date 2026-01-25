@@ -68,7 +68,7 @@ func UpdateCategory(w http.ResponseWriter, r *http.Request) {
 
 	for i := range models.Categories {
 		if models.Categories[i].ID == id {
-			models.Categories[i] = updateCategory
+			models.Categories[i].ID = updateCategory.ID
 			models.Categories[i] = updateCategory
 
 			pkg.ResponseSuccess(w, http.StatusOK, "success", models.Categories)
