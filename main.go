@@ -10,8 +10,9 @@ import (
 // @title           Kasir API
 // @version         1.0
 // @description     API untuk sistem kasir sederhana
-// @host            localhost:8080
+// @host 			go-kasir-api-production.up.railway.app
 // @BasePath        /
+// @schemes 		https
 func main() {
 	pkg.InitLogger()
 
