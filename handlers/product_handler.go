@@ -100,8 +100,10 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	// loop product cari id ganti sesuai data dari request
 	for i := range models.Products {
 		if models.Products[i].ID == id {
-			models.Products[i].ID = updateProduct.ID
 			models.Products[i] = updateProduct
+
+			// fix id
+			models.Products[i].ID = id
 
 			pkg.ResponseSuccess(w, http.StatusOK, "success", models.Products)
 			return
