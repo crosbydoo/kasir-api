@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"kasir-api/internal/pkg"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -26,8 +27,9 @@ func InitDB(connectionString string) (*sql.DB, error) {
 	}
 
 	// Set connection pool settings (optional tapi recommended)
-	db.SetMaxOpenConns(25)
-	db.SetMaxIdleConns(5)
+	db.SetMaxOpenConns(5)
+	db.SetMaxIdleConns(2)
+	db.SetConnMaxLifetime(time.Minute * 5)
 
 	pkg.Log.Info("Database connection opened")
 	return db, nil
