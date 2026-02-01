@@ -1,122 +1,370 @@
 # Kasir API
 
-Kasir API adalah backend RESTful API sederhana yang dibangun menggunakan Go (Golang) untuk mengelola data produk dan kategori, cocok untuk sistem kasir atau Point of Sales (POS) sederhana.
+Backend RESTful API untuk sistem Point of Sales (POS) yang dibangun dengan Go, PostgreSQL, dan Clean Architecture.
 
-## 🚀 Fitur
+---
 
-- **Manajemen Produk (CRUD)**: Create, Read, Update, Delete data produk.
-- **Manajemen Kategori (CRUD)**: Create, Read, Update, Delete data kategori.
-- **Health Check**: Endpoint untuk memantau status server.
-- **Swagger Documentation**: Dokumentasi API interaktif yang terintegrasi.
-- **Centralized Logging**: Pencatatan log Info dan Error yang terstruktur.
-- **Standardized Response**: Format respons JSON yang konsisten untuk sukses dan error.
+## ✨ Highlights
 
-## 🛠️ Teknologi yang Digunakan
+- 🏗️ **Clean Architecture** dengan struktur `internal/` yang terorganisir
+- 📊 **Structured Logging** menggunakan Logrus di setiap layer
+- 🔄 **UseCase Pattern** untuk business logic yang jelas
+- 🎯 **Interface-based** Repository untuk testability
+- 🚀 **Production-ready** dengan proper error handling dan validation
 
-- **Language**: [Go](https://go.dev/)
-- **API Documentation**: [Swagger (Swaggo)](https://github.com/swaggo/swag)
-- **Live Reload**: [Air](https://github.com/air-verse/air) (untuk pengembangan)
+---
 
-## 📂 Struktur Project
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Language** | [Go 1.21+](https://go.dev/) |
+| **Database** | [PostgreSQL](https://www.postgresql.org/) |
+| **Logging** | [Logrus](https://github.com/sirupsen/logrus) |
+| **Config** | [Viper](https://github.com/spf13/viper) |
+| **Docs** | [Swagger/Swaggo](https://github.com/swaggo/swag) |
+| **Dev Tools** | [Air](https://github.com/air-verse/air) (hot reload) |
+
+---
+
+## 📂 Project Structure
 
 ```
 kasir-api/
-├── docs/           # Generated Swagger documentation
-├── dto/            # Data Transfer Objects (Request structs)
-├── handlers/       # HTTP Handlers (Controllers)
-├── models/         # Data Models (Structs & In-memory data)
-├── pkg/            # Utility packages (Logger, Response Helper)
-├── routes/         # Router setup
-├── main.go         # Entry point application
-└── go.mod          # Go module definitions
+├── cmd/
+│   └── api/
+│       └── main.go                    # Application entry point
+├── internal/
+│   ├── bootstrap/
+│   │   └── bootstrap.go               # App initialization & DI
+│   ├── config/
+│   │   └── config.go                  # Configuration loader
+│   ├── database/
+│   │   └── database.go                # Database connection
+│   ├── domain/
+│   │   ├── models/                    # Domain models
+│   │   │   ├── product.go
+│   │   │   └── health.go
+│   │   ├── repositories/              # Repository interfaces & implementations
+│   │   │   └── product_repository.go
+│   │   └── usecases/                  # Business logic
+│   │       ├── product_usecase.go
+│   │       └── health_usecase.go
+│   ├── http/
+│   │   ├── handlers/                  # HTTP handlers
+│   │   │   ├── product_handler.go
+│   │   │   ├── health_handler.go
+│   │   │   └── category_handler.go
+│   │   └── middleware/                # HTTP middlewares
+│   │       └── logging.go
+│   └── pkg/                           # Shared utilities
+│       ├── logger.go
+│       └── response.go
+├── docs/                              # Swagger documentation
+├── .env                               # Environment variables
+├── .air.toml                          # Air configuration
+└── go.mod
 ```
 
-## 📦 Instalasi & Cara Menjalankan
+---
 
-### Prasyarat
-- Go terinstall di komputer Anda.
+## 🏗️ Architecture Flow
 
-### 1. Clone Repository
+### Request Flow (Handler → UseCase → Repository)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  1. HTTP Request                                            │
+│     GET /api/product                                        │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│  2. Middleware Layer                                        │
+│     internal/http/middleware/logging.go                     │
+│     • Log incoming request                                  │
+│     • Track duration                                        │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│  3. Handler Layer                                           │
+│     internal/http/handlers/product_handler.go               │
+│     • Parse HTTP request                                    │
+│     • Validate input format                                 │
+│     • Call use case                                         │
+│     • Format HTTP response                                  │
+│     • Log handler actions                                   │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│  4. UseCase Layer                                           │
+│     internal/domain/usecases/product_usecase.go             │
+│     • Business logic & validation                           │
+│     • Call repository (via interface)                       │
+│     • Error handling                                        │
+│     • Log use case execution                                │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│  5. Repository Layer                                        │
+│     internal/domain/repositories/product_repository.go      │
+│     • Execute SQL queries                                   │
+│     • Map database rows to models                           │
+│     • Handle database errors                                │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│  6. Database (PostgreSQL)                                   │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│  7. Response (JSON)                                         │
+│     {                                                       │
+│       "status": "success",                                  │
+│       "message": "Products retrieved successfully",         │
+│       "data": [...]                                         │
+│     }                                                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Key Principles
+
+1. **Dependency Injection**: Dependencies injected via constructors
+2. **Interface-based**: Repository returns interface for testability
+3. **Separation of Concerns**: Each layer has single responsibility
+4. **Structured Logging**: Log at every layer with context
+
+---
+
+## 🚀 Quick Start
+
+### 1. Prerequisites
+- Go 1.21 or higher
+- PostgreSQL database
+- Air (optional, for hot reload)
+
+### 2. Clone & Install
 ```bash
-git clone https://github.com/username/kasir-api.git
+git clone https://github.com/crosbydoo/kasir-api.git
 cd kasir-api
-```
-
-### 2. Install Dependencies
-```bash
 go mod tidy
 ```
 
-### 3. Menjalankan Server
-
-#### Mode Biasa
-```bash
-go run main.go
+### 3. Configuration
+Create `.env` file:
+```env
+PORT=8080
+DB_CONN=postgresql://user:password@localhost:5432/kasir_db?sslmode=disable
+APP_ENV=development
 ```
 
-#### Mode Development (dengan Hot Reload)
-Pastikan Anda sudah menginstall `air`:
-```bash
-# Install Air (jika belum)
-go install github.com/air-verse/air@latest
+### 4. Run Application
 
-# Jalankan dengan Air
+**Development (with hot reload):**
+```bash
 air
 ```
 
-Server akan berjalan di `http://localhost:8080`.
-
-## 📚 Dokumentasi API
-
-Dokumentasi lengkap API tersedia melalui Swagger UI.
-Setelah server berjalan, buka browser dan akses:
-
-```
-http://localhost:8080/swagger/index.html
+**Production:**
+```bash
+go build -o bin/api ./cmd/api
+./bin/api
 ```
 
-### Endpoint Utama
+Server will run on `http://localhost:8080`
 
-**Product**
-- `GET /api/product` - Ambil semua produk
-- `GET /api/product/{id}` - Ambil produk berdasarkan ID
-- `POST /api/product` - Tambah produk baru
-- `PUT /api/product/{id}` - Update produk
-- `DELETE /api/product/{id}` - Hapus produk
+---
 
-**Category**
-- `GET /api/category` - Ambil semua kategori
-- `GET /api/category/{id}` - Ambil kategori berdasarkan ID
-- `POST /api/category` - Tambah kategori baru
-- `PUT /api/category/{id}` - Update kategori
-- `DELETE /api/category/{id}` - Hapus kategori
+## 📊 Logging Example
 
-**Health**
-- `GET /health` - Cek status server
+### Startup Logs
+```
+INFO[2026-01-31 21:31:00] Starting Kasir API...
+INFO[2026-01-31 21:31:00] Logger initialized successfully
+INFO[2026-01-31 21:31:00] Loading configuration...
+INFO[2026-01-31 21:31:00] Configuration loaded successfully    port=8080
+INFO[2026-01-31 21:31:00] Connecting to database...
+INFO[2026-01-31 21:31:00] Database connected successfully
+INFO[2026-01-31 21:31:00] Initializing dependencies...
+INFO[2026-01-31 21:31:00] All dependencies initialized successfully
+INFO[2026-01-31 21:31:00] Registering routes...
+INFO[2026-01-31 21:31:00] Routes registered successfully
+INFO[2026-01-31 21:31:00] Starting HTTP server...    address="0.0.0.0:8080" port=8080
+```
 
-## 📝 Format Request JSON
+### Request Logs
+```
+INFO[21:31:15] Incoming request    method=GET path=/api/product remote_addr="127.0.0.1:54321"
+INFO[21:31:15] Get all products handler called    handler=product_handler action=get_all_products
+INFO[21:31:15] Executing get all products use case    usecase=product action=get_all_products
+INFO[21:31:15] Successfully retrieved all products    usecase=product count=10
+INFO[21:31:15] Products retrieved successfully    handler=product_handler count=10
+INFO[21:31:15] Request completed successfully    status_code=200 duration_ms=15
+```
 
-**Create/Update Product**
+---
+
+## 📚 API Endpoints
+
+### Health Check
+```
+GET /api/health
+```
+
+### Products
+```
+GET    /api/product           # Get all products
+GET    /api/product/{id}      # Get product by ID
+POST   /api/product           # Create product
+PUT    /api/product/{id}      # Update product
+DELETE /api/product/{id}      # Delete product
+```
+
+### Categories
+```
+GET    /api/category          # Get all categories
+GET    /api/category/{id}     # Get category by ID
+POST   /api/category          # Create category
+PUT    /api/category/{id}     # Update category
+DELETE /api/category/{id}     # Delete category
+```
+
+### Swagger Documentation
+```
+GET /swagger/index.html
+```
+
+---
+
+## 📝 Request/Response Examples
+
+### Create Product
+**Request:**
 ```json
+POST /api/product
 {
-  "name": "Nama Produk",
-  "harga": 10000,
-  "stock": 50
+  "name": "Laptop ASUS",
+  "price": 15000000,
+  "stock": 10
 }
 ```
 
-**Create/Update Category**
+**Response:**
 ```json
 {
-  "name": "Minuman",
-  "description": "Kategori untuk berbagai jenis minuman"
+  "status": "success",
+  "message": "Product created successfully",
+  "data": {
+    "id": 1,
+    "name": "Laptop ASUS",
+    "price": 15000000,
+    "stock": 10
+  }
 }
 ```
 
-## 🤝 Kontribusi
+### Get All Products
+**Request:**
+```
+GET /api/product
+```
 
-Silakan buat *pull request* untuk berkontribusi pada project ini.
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Products retrieved successfully",
+  "data": [
+    {
+      "id": 1,
+      "name": "Laptop ASUS",
+      "price": 15000000,
+      "stock": 10
+    }
+  ]
+}
+```
 
-## 📄 Lisensi
+---
+
+## 🎯 Key Features
+
+### 1. Clean Architecture
+- **Domain Layer**: Models, repositories (interfaces), use cases
+- **HTTP Layer**: Handlers, middleware
+- **Infrastructure**: Database, config, logger
+
+### 2. Interface-based Repository
+```go
+// Interface definition
+type ProductRepository interface {
+    GetAllProduct() ([]models.Product, error)
+    GetProductByID(id int) (*models.Product, error)
+    CreateProduct(product *models.Product) error
+    UpdateProduct(product *models.Product) error
+    DeleteProduct(id int) error
+}
+
+// Constructor returns interface
+func NewProductRepository(db *sql.DB) ProductRepository {
+    return &productRepository{db: db}
+}
+```
+
+### 3. UseCase Pattern
+```go
+// Business logic with validation
+func (uc *productUseCase) CreateProduct(product *models.Product) error {
+    // Validation
+    if product.Name == "" {
+        return errors.New("product name is required")
+    }
+    if product.Price < 0 {
+        return errors.New("product price cannot be negative")
+    }
+    
+    // Call repository
+    return uc.productRepo.CreateProduct(product)
+}
+```
+
+### 4. Structured Logging
+```go
+pkg.Log.WithFields(logrus.Fields{
+    "usecase": "product",
+    "action": "create_product",
+    "product_name": product.Name,
+}).Info("Creating product")
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+# Run tests
+go test ./...
+
+# Run tests with coverage
+go test -cover ./...
+
+# Run tests with verbose output
+go test -v ./...
+```
+
+---
+
+## 📄 License
 
 [MIT License](LICENSE)
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
+
+## 📧 Contact
+
+For questions or support, please open an issue on GitHub.
