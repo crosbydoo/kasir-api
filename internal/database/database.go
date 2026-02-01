@@ -5,7 +5,8 @@ import (
 	"kasir-api/internal/pkg"
 	"time"
 
-	_ "github.com/lib/pq"
+	// _ "github.com/lib/pq" // postgres driver
+	_ "github.com/jackc/pgx/v5/stdlib" // postgres driver
 )
 
 type Config struct {
@@ -15,7 +16,7 @@ type Config struct {
 
 func InitDB(connectionString string) (*sql.DB, error) {
 	// Open connection
-	db, err := sql.Open("postgres", connectionString)
+	db, err := sql.Open("pgx", connectionString)
 	if err != nil {
 		return nil, err
 	}
