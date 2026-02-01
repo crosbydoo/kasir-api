@@ -128,6 +128,15 @@ func (uc *productUseCase) CreateProduct(product *models.Product) error {
 		return errors.New("product stock cannot be negative")
 	}
 
+	if product.CategoryID <= 0 {
+		pkg.Log.WithFields(logrus.Fields{
+			"usecase":     "product",
+			"action":      "create_product",
+			"category_id": product.CategoryID,
+		}).Warn("Product category ID is required")
+		return errors.New("product category ID is required")
+	}
+
 	err := uc.productRepo.CreateProduct(product)
 	if err != nil {
 		pkg.Log.WithFields(logrus.Fields{
@@ -195,6 +204,16 @@ func (uc *productUseCase) UpdateProduct(product *models.Product) error {
 			"stock":      product.Stock,
 		}).Warn("Product stock cannot be negative")
 		return errors.New("product stock cannot be negative")
+	}
+
+	if product.CategoryID <= 0 {
+		pkg.Log.WithFields(logrus.Fields{
+			"usecase":     "product",
+			"action":      "update_product",
+			"product_id":  product.ID,
+			"category_id": product.CategoryID,
+		}).Warn("Product category ID is required")
+		return errors.New("product category ID is required")
 	}
 
 	// Cek apakah produk ada
