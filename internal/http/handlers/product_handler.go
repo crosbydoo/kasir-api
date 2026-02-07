@@ -28,13 +28,15 @@ func NewProductHandler(productUseCase usecases.ProductUseCase) *ProductHandler {
 // @Success 200 {object} pkg.ResponsePayload
 // @Router /api/product [get]
 func (h *ProductHandler) GetAllProduct(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+
 	pkg.Log.WithFields(logrus.Fields{
 		"handler": "product_handler",
 		"action":  "get_all_products",
 		"method":  r.Method,
 	}).Info("Get all products handler called")
 
-	products, err := h.productUseCase.GetAllProducts()
+	products, err := h.productUseCase.GetAllProducts(name)
 	if err != nil {
 		pkg.Log.WithFields(logrus.Fields{
 			"handler": "product_handler",

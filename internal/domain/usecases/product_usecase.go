@@ -11,7 +11,7 @@ import (
 
 // ProductUseCase adalah interface untuk product use cases
 type ProductUseCase interface {
-	GetAllProducts() ([]models.Product, error)
+	GetAllProducts(name string) ([]models.Product, error)
 	CreateProduct(product *models.Product) error
 	GetProductByID(id int) (*models.Product, error)
 	UpdateProduct(product *models.Product) error
@@ -30,13 +30,13 @@ func NewProductUseCase(productRepo repositories.ProductRepository) ProductUseCas
 }
 
 // GetAllProducts mengambil semua produk dari database
-func (uc *productUseCase) GetAllProducts() ([]models.Product, error) {
+func (uc *productUseCase) GetAllProducts(name string) ([]models.Product, error) {
 	pkg.Log.WithFields(logrus.Fields{
 		"usecase": "product",
 		"action":  "get_all_products",
 	}).Info("Executing get all products use case")
 
-	products, err := uc.productRepo.GetAllProduct()
+	products, err := uc.productRepo.GetAllProduct(name)
 	if err != nil {
 		pkg.Log.WithFields(logrus.Fields{
 			"usecase": "product",

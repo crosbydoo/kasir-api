@@ -8,7 +8,7 @@ import (
 
 // Interface digunakan sebagai kontrak
 type ProductRepository interface {
-	GetAllProduct() ([]models.Product, error)
+	GetAllProduct(name string) ([]models.Product, error)
 	GetProductByID(id int) (*models.Product, error)
 	CreateProduct(product *models.Product) error
 	UpdateProduct(product *models.Product) error
@@ -25,9 +25,15 @@ func NewProductRepository(db *sql.DB) ProductRepository {
 	return &productRepository{db: db}
 }
 
-func (repo *productRepository) GetAllProduct() ([]models.Product, error) {
+func (repo *productRepository) GetAllProduct(name string) ([]models.Product, error) {
 	query := "SELECT id, name, price, stock, category_id FROM products"
-	rows, err := repo.db.Query(query)
+	args := []interface{}{}
+	if name != "" {
+		query += " WHERE name ILIKE $1"
+		args = append(args, "%"+name+"%")
+	}
+
+	rows, err := repo.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
